@@ -7,7 +7,7 @@ const {obtenerTodosProductos,obtenerinformacionNutricionalProductoSimple,generar
 //Gets
 router.get('/producto/listaCompletaProductos',obtenerTodosProductos);
 router.get('/producto/informacionNutricionalProductoSimple/:id',obtenerinformacionNutricionalProductoSimple);
-router.get('/producto/informacionNutricionalProductoSimple',obtenerListaProductosSimilitudes)
+router.get('/producto/busquedaSimilitudes',obtenerListaProductosSimilitudes)
 
 //Posts
 router.post('/producto/generarPlanProducto',generarPlanProducto);
