@@ -10,7 +10,7 @@ const pool = new Pool({
 })
 
 const obtenerTodosProductos = async(req, res) => {
-    let obtenerProductos = await pool.query('select id_producto,productos.nombre,marcas.nombre as marca,link_imagen,nutricional.kcal_100 from productos join nutricional ON productos.nutricional = nutricional.id_nutricional join marcas on productos.marca = marcas.id_marca;')
+    let obtenerProductos = await pool.query('select id_producto,productos.nombre,marcas.nombre as marca,nutricional.kcal_100 from productos join nutricional ON productos.nutricional = nutricional.id_nutricional join marcas on productos.marca = marcas.id_marca;')
     pool.end;
     return res.send(obtenerProductos.rows);
 }
@@ -19,7 +19,7 @@ const obtenerTodosProductos = async(req, res) => {
 //Se recibe el id del producto atraves del parametro del EndPoint
 const obtenerinformacionNutricionalProductoSimple = async(req, res) => {
     let idProducto = req.params.id;
-    let obtenerProductos = await pool.query('select nombre,link_imagen,porcion,nutricional.kcal_100,nutricional.prot_100,nutricional.gr_totales_100,nutricional.gr_satu_100,nutricional.gr_mono_100,nutricional.gr_poli_100,nutricional.gr_trans_100,nutricional.colesterol_100,nutricional.hidratos_100,nutricional.azucares_100,nutricional.sodio_100,nutricional.kcal_prcn,nutricional.prot_prcn,nutricional.gr_totales_prcn,nutricional.gr_satu_prcn,nutricional.gr_mono_prcn,nutricional.gr_poli_prcn,nutricional.gr_trans_prcn,nutricional.colesterol_prcn,nutricional.hidratos_prcn,nutricional.azucares_prcn,nutricional.sodio_prcn from productos join nutricional on nutricional.id_nutricional = productos.nutricional where id_producto = $1;',[idProducto])
+    let obtenerProductos = await pool.query('select nombre,porcion,nutricional.kcal_100,nutricional.prot_100,nutricional.gr_totales_100,nutricional.gr_satu_100,nutricional.gr_mono_100,nutricional.gr_poli_100,nutricional.gr_trans_100,nutricional.colesterol_100,nutricional.hidratos_100,nutricional.azucares_100,nutricional.sodio_100,nutricional.kcal_prcn,nutricional.prot_prcn,nutricional.gr_totales_prcn,nutricional.gr_satu_prcn,nutricional.gr_mono_prcn,nutricional.gr_poli_prcn,nutricional.gr_trans_prcn,nutricional.colesterol_prcn,nutricional.hidratos_prcn,nutricional.azucares_prcn,nutricional.sodio_prcn from productos join nutricional on nutricional.id_nutricional = productos.nutricional where id_producto = $1;',[idProducto])
     pool.end;
     return res.send(obtenerProductos.rows);
 }
@@ -33,8 +33,16 @@ const generarPlanProducto = async(req, res) => {
     }
 }
 
+const obtenerListaProductosSimilitudes = async(req,res) =>{
+    let {nombre} = req.body;
+    let responseQuery = await pool.query('select * from buscar_producto($1)',[nombre]);
+    pool.end;
+    return res.status(200).send(responseQuery.rows);
+}
+
 module.exports = {
     obtenerTodosProductos,
     obtenerinformacionNutricionalProductoSimple,
-    generarPlanProducto
+    generarPlanProducto,
+    obtenerListaProductosSimilitudes
 }
