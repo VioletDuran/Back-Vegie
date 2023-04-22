@@ -1,6 +1,22 @@
 const { Pool } = require('pg');
 const { json } = require('express');
 
+
+function middleware(req,res,next){
+    const token = req.headers['token'];
+    const dotenv = require('dotenv').config({ path: 'pass.env' });
+    const secretKey = process.env.secretkey;
+    const jwt = require('jsonwebtoken');
+    jwt.verify(token, secretKey, (err, decoded) => {
+        if (err) {
+            return res.status(404).send(false);
+        } else {
+          req.id_usuario = decoded.data;
+          next();
+        }
+    });
+}
+
 const pool = new Pool({
     host: 'ec2-107-23-75-98.compute-1.amazonaws.com',
     user: 'postgres',
@@ -26,7 +42,9 @@ const obtenerinformacionNutricionalProductoSimple = async(req, res) => {
 
 //Se recibe un objeto JSON por el metodo POST, el cual recibe: id_usuario, fecha, unidad_medida, id_producto, cantidad, checked.
 const generarPlanProducto = async(req, res) => {
-    let {id_usuario, fecha, unidad_medida, id_producto, cantidad, checked} = req.body;
+    let {id_usuario} = req.id_usuario;
+    console.log(id_usuario);
+    let {fecha, unidad_medida, id_producto, cantidad, checked} = req.body;
     let generarPlan = await pool.query('insert into planes_productos(id_usuario,fecha,id_producto,unidad_medida,cantidad,checked) values($1,$2,$3,$4,$5,$6)',[id_usuario,fecha,id_producto,unidad_medida,cantidad,checked]);
     if(generarPlan){
         return res.status(200).send(true);
@@ -40,9 +58,53 @@ const obtenerListaProductosSimilitudes = async(req,res) =>{
     return res.status(200).send(responseQuery.rows);
 }
 
+const registrarUsuario = async(req,res) => {
+    let {email,nombre,password,fecha_nacimiento,peso,altura,sexo,objetivo,tarjet_calorias,es_vegano} = req.body;
+    const bcrypt = require('bcrypt');
+    const saltRounds = 10;
+    let auxContraseña =  bcrypt.hashSync(password, saltRounds, (err, hash) => {
+        if (err) throw (err)
+        contraseña = hash;
+    });
+    let response = await pool.query('select email from usuarios where email = $1',[email]);
+    if(response.rows.length == 0){
+        let responseQuery = await pool.query('INSERT INTO usuarios(nombre, email, password, fecha_nacimiento, peso, altura, sexo, objetivo, tarjet_calorias, es_vegano) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[nombre,email,auxContraseña,fecha_nacimiento,peso,altura,sexo,objetivo,tarjet_calorias,es_vegano]);
+        return res.status(200).send(true);
+    }else{
+        return res.status(401).send(false);
+    }
+}
+
+const loginUsuario = async (req,res) => {
+    const dotenv = require('dotenv').config({ path: 'pass.env' });
+    const {email,password} = req.body;
+    const response = await pool.query('select id_usuario,password from usuarios where email = $1',[email]);
+    const bcrypt = require('bcrypt');
+    const jwt = require('jsonwebtoken');
+    if(bcrypt.compareSync(password, response.rows[0].password)){
+        let resultado = response.rows[0];
+        delete resultado.password;
+        let token = jwt.sign({
+            data: resultado
+        }, process.env.secretkey , { expiresIn: 60 * 60 * 24}) // duracion de 1 dia.
+        pool.end;
+        return res.json({
+            token,
+            valor: true
+        })
+    }else{
+        pool.end;
+        res.status(401).send(false);
+    }
+}
+
+
 module.exports = {
     obtenerTodosProductos,
     obtenerinformacionNutricionalProductoSimple,
     generarPlanProducto,
-    obtenerListaProductosSimilitudes
+    obtenerListaProductosSimilitudes,
+    registrarUsuario,
+    loginUsuario,
+    middleware
 }
