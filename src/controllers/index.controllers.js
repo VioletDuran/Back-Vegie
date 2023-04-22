@@ -43,7 +43,6 @@ const obtenerinformacionNutricionalProductoSimple = async(req, res) => {
 //Se recibe un objeto JSON por el metodo POST, el cual recibe: id_usuario, fecha, unidad_medida, id_producto, cantidad, checked.
 const generarPlanProducto = async(req, res) => {
     let {id_usuario} = req.id_usuario;
-    console.log(id_usuario);
     let {fecha, unidad_medida, id_producto, cantidad, checked} = req.body;
     let generarPlan = await pool.query('insert into planes_productos(id_usuario,fecha,id_producto,unidad_medida,cantidad,checked) values($1,$2,$3,$4,$5,$6)',[id_usuario,fecha,id_producto,unidad_medida,cantidad,checked]);
     if(generarPlan){
