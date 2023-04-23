@@ -82,7 +82,7 @@ const loginUsuario = async (req,res) => {
     const response = await pool.query('select id_usuario,password from usuarios where email = $1',[email]);
     const bcrypt = require('bcrypt');
     const jwt = require('jsonwebtoken');
-    if(bcrypt.compareSync(password, response.rows[0].password)){
+    if(response.rowCount > 0 && bcrypt.compareSync(password, response.rows[0].password)){
         let resultado = response.rows[0];
         delete resultado.password;
         let token = jwt.sign({
