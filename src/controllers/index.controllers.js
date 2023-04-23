@@ -25,8 +25,10 @@ const pool = new Pool({
     port: '5432'
 })
 
+//Se obtienen todos los productos enconjunto a su favoritos del usuario logeado
 const obtenerTodosProductos = async(req, res) => {
-    let obtenerProductos = await pool.query('select id_producto,productos.nombre,marcas.nombre as marca,nutricional.kcal_100 from productos join nutricional ON productos.nutricional = nutricional.id_nutricional join marcas on productos.marca = marcas.id_marca;')
+    let {id_usuario} = req.id_usuario;
+    let obtenerProductos = await pool.query('select p.id_producto,p.nombre,marcas.nombre as marca,nutricional.kcal_100,es_producto_favorito($1,p.id_producto) from usuarios u join productos_favoritos pf on pf.id_usuario = u.id_usuario right join productos p on p.id_producto = pf.id_producto join nutricional ON p.nutricional = nutricional.id_nutricional join marcas on p.marca = marcas.id_marca',[id_usuario]);
     pool.end;
     return res.send(obtenerProductos.rows);
 }
@@ -51,7 +53,7 @@ const generarPlanProducto = async(req, res) => {
 }
 
 const obtenerListaProductosSimilitudes = async(req,res) =>{
-    let {nombre} = req.body;
+    let nombre = req.params.palabra;
     let responseQuery = await pool.query('select * from buscar_producto($1)',[nombre]);
     pool.end;
     return res.status(200).send(responseQuery.rows);
@@ -96,7 +98,20 @@ const loginUsuario = async (req,res) => {
         res.status(401).send(false);
     }
 }
+ 
+const agregarProductoAFavoritos = async (req,res) =>{
+    let {id_usuario} = req.id_usuario;
+    let idProducto = req.params.idProducto;
+    let response = await pool.query('INSERT INTO productos_favoritos (id_usuario, id_producto) VALUES($1, $2);', [id_usuario,idProducto]);
+    return res.status(200).send(true);
+}
 
+const quitarProductoAFavoritos = async (req,res) =>{
+    let {id_usuario} = req.id_usuario;
+    let idProducto = req.params.idProducto;
+    let response = await pool.query('DELETE FROM productos_favoritos WHERE id_usuario = $1 AND id_producto= $2;', [id_usuario,idProducto]);
+    return res.status(200).send(true);
+}
 
 module.exports = {
     obtenerTodosProductos,
@@ -105,5 +120,7 @@ module.exports = {
     obtenerListaProductosSimilitudes,
     registrarUsuario,
     loginUsuario,
-    middleware
+    middleware,
+    agregarProductoAFavoritos,
+    quitarProductoAFavoritos
 }
