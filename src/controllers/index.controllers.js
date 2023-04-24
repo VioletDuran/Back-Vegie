@@ -113,6 +113,27 @@ const quitarProductoAFavoritos = async (req,res) =>{
     return res.status(200).send(true);
 }
 
+const obtenerTodasRecetas = async (req,res) =>{
+    let {id_usuario} = req.id_usuario;
+    let obtenerReceta = await pool.query('select p.nombre, n.kcal_prcn, p.link_imagen, es_preparacion_favorita($1,p.id_preparacion) from preparaciones p join nutricional n on p.nutricional = n.id_nutricional',[id_usuario]);
+    pool.end;
+    return res.send(obtenerReceta.rows);
+}
+
+const agregarPreparacionAFavoritos = async (req,res) =>{
+    let {id_usuario} = req.id_usuario;
+    let idPreparacion = req.params.idPreparacion;
+    let response = await pool.query('INSERT INTO preparaciones_favoritos(id_usuario, id_preparacion) VALUES($1, $2);', [id_usuario,idPreparacion]);
+    return res.status(200).send(true);
+}
+
+const quitarPreparacionAFavoritos = async (req,res) =>{
+    let {id_usuario} = req.id_usuario;
+    let idPreparacion = req.params.idPreparacion;
+    let response = await pool.query('DELETE FROM preparaciones_favoritos WHERE id_usuario = $1 AND id_preparacion = $2;', [id_usuario,idPreparacion]);
+    return res.status(200).send(true);
+}
+
 module.exports = {
     obtenerTodosProductos,
     obtenerinformacionNutricionalProductoSimple,
@@ -122,5 +143,8 @@ module.exports = {
     loginUsuario,
     middleware,
     agregarProductoAFavoritos,
-    quitarProductoAFavoritos
+    quitarProductoAFavoritos,
+    obtenerTodasRecetas,
+    agregarPreparacionAFavoritos,
+    quitarPreparacionAFavoritos
 }
