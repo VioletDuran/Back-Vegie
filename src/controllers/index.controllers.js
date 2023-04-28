@@ -9,7 +9,7 @@ function middleware(req,res,next){
     const jwt = require('jsonwebtoken');
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
-            return res.status(404).send(false);
+            return res.status(401).send(false);
         } else {
           req.id_usuario = decoded.data;
           next();
