@@ -53,8 +53,9 @@ const generarPlanProducto = async(req, res) => {
 }
 
 const obtenerListaProductosSimilitudes = async(req,res) =>{
+    let {id_usuario} = req.id_usuario;
     let nombre = req.params.palabra;
-    let responseQuery = await pool.query('select * from buscar_producto($1)',[nombre]);
+    let responseQuery = await pool.query('select * from buscar_producto_logeado($1,$2)',[nombre,id_usuario]);
     pool.end;
     return res.status(200).send(responseQuery.rows);
 }
