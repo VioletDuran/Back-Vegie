@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-const { json } = require('express');
+const { json, response } = require('express');
 
 
 function middleware(req,res,next){
@@ -135,6 +135,17 @@ const quitarPreparacionAFavoritos = async (req,res) =>{
     return res.status(200).send(true);
 }
 
+const obtenerFavoritosUsuario = async(req,res) =>{
+    let {id_usuario} = req.id_usuario;
+    let response = await pool.query('select productos_favoritos.id_producto,productos.nombre,marcas.nombre,productos.cantidad_embase,productos.link_imagen,nutricional.kcal_prcn from productos_favoritos join productos on productos_favoritos.id_producto = productos.id_producto join nutricional on nutricional.id_nutricional = productos.nutricional join marcas on marcas.id_marca = productos.marca where productos_favoritos.id_usuario = $1',[id_usuario]);
+    let response2 = await pool.query('select preparaciones.id_preparacion, preparaciones.nombre, nutricional.kcal_prcn, preparaciones.link_imagen from preparaciones_favoritos join preparaciones on preparaciones.id_preparacion = preparaciones_favoritos.id_preparacion join nutricional on preparaciones.nutricional = nutricional.id_nutricional where preparaciones_favoritos.id_usuario = $1',[id_usuario]);
+    let respuestas = {
+        "productos":response.rows,
+        "recetas":response2.rows
+    }
+    return res.status(200).send(respuestas);
+}
+
 module.exports = {
     obtenerTodosProductos,
     obtenerinformacionNutricionalProductoSimple,
@@ -147,5 +158,6 @@ module.exports = {
     quitarProductoAFavoritos,
     obtenerTodasRecetas,
     agregarPreparacionAFavoritos,
-    quitarPreparacionAFavoritos
+    quitarPreparacionAFavoritos,
+    obtenerFavoritosUsuario
 }
