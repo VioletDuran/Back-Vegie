@@ -195,13 +195,12 @@ const detalleReceta = async(req,res) => {
                                             from preparaciones p 
                                             join nutricional n on n.id_nutricional = p.nutricional 
                                             where p.id_preparacion = $1`,[id_preparacion])
-        
         let pasos = await pool.query(`select pp.*
                                         from preparaciones p 
                                         join pasos_preparacion pp on p.id_preparacion = pp.id_preparacion 
                                         where p.id_preparacion = $1`,[id_preparacion])
 
-        let lista_productos = await pool.query(`select pp.id_preparacion,pp.cantidad, um.nombre nombre_unidad, pro.nombre nombre_producto, 
+        let lista_productos = await pool.query(`select pp.id_preparacion,pp.cantidad, um.nombre nombre_unidad, pro.nombre nombre_producto, pro.id_producto,
                                             case when um.nombre = 'porcion' then n.kcal_prcn * pp.cantidad 
                                                                             else n.kcal_100/100*pp.cantidad
                                                                             end kcal,
@@ -225,10 +224,9 @@ const detalleReceta = async(req,res) => {
             info_receta:info_receta.rows,
             pasos:pasos.rows
         } 
-        console.log(info_receta.rows)
         return res.status(200).send(response_)
     }catch(err){
-
+        return res.status(500).send()
     }
 }
 
