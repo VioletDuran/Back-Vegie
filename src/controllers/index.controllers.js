@@ -37,7 +37,9 @@ const obtenerTodosProductos = async(req, res) => {
 //Se recibe el id del producto atraves del parametro del EndPoint
 const obtenerinformacionNutricionalProductoSimple = async(req, res) => {
     let idProducto = req.params.id;
-    let obtenerProductos = await pool.query('select nombre,porcion,nutricional.kcal_100,nutricional.prot_100,nutricional.gr_totales_100,nutricional.gr_satu_100,nutricional.gr_mono_100,nutricional.gr_poli_100,nutricional.gr_trans_100,nutricional.colesterol_100,nutricional.hidratos_100,nutricional.azucares_100,nutricional.sodio_100,nutricional.kcal_prcn,nutricional.prot_prcn,nutricional.gr_totales_prcn,nutricional.gr_satu_prcn,nutricional.gr_mono_prcn,nutricional.gr_poli_prcn,nutricional.gr_trans_prcn,nutricional.colesterol_prcn,nutricional.hidratos_prcn,nutricional.azucares_prcn,nutricional.sodio_prcn from productos join nutricional on nutricional.id_nutricional = productos.nutricional where id_producto = $1;',[idProducto])
+    let obtenerProductos = await pool.query(`select p.id_producto,p.nombre,p.porcion,p.cantidad_embase ,n.* 
+                                                from productos p join nutricional n on n.id_nutricional = p.nutricional 
+                                                where id_producto = $1;`,[idProducto])
     pool.end;
     return res.send(obtenerProductos.rows);
 }
@@ -146,6 +148,46 @@ const obtenerFavoritosUsuario = async(req,res) =>{
     return res.status(200).send(respuestas);
 }
 
+const buscarRecetas = async(req,res) => {
+    try{
+        let {id_usuario} = req.id_usuario;
+        let busqueda = req.params.busqueda;
+        let response = await pool.query('select * from buscar_preparacion_logeado($1,$2)',[busqueda,id_usuario]);
+        return res.status(200).send(response.rows)    
+    }catch(err){
+        console.log(err)
+        return res.status(500).send()
+    }
+}
+
+const recetasUsuario = async(req,res) => {
+    try{
+        let {id_usuario} = req.id_usuario;
+        let response = await pool.query(`select p.id_preparacion,p.nombre,n.kcal_prcn from preparaciones p
+                                            join nutricional n on n.id_nutricional = p.nutricional
+                                            where p.id_usuario = $1`,[id_usuario])
+        return res.status(200).send(response.rows)
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send()
+    }
+}
+
+const obtenerInfoUsuario = async(req,res) => {
+    try{
+        let {id_usuario} = req.id_usuario;
+        let response = await pool.query(`select u.nombre,u.email,u.fecha_nacimiento,u.peso,u.altura,u.sexo,u.objetivo,u.tarjet_calorias,u.es_vegano 
+                                            from usuarios u 
+                                            where u.id_usuario = $1`,[id_usuario])
+        return res.status(200).send(response.rows)
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send()
+    }
+}
+
 module.exports = {
     obtenerTodosProductos,
     obtenerinformacionNutricionalProductoSimple,
@@ -159,5 +201,8 @@ module.exports = {
     obtenerTodasRecetas,
     agregarPreparacionAFavoritos,
     quitarPreparacionAFavoritos,
-    obtenerFavoritosUsuario
+    obtenerFavoritosUsuario,
+    buscarRecetas,
+    recetasUsuario,
+    obtenerInfoUsuario
 }

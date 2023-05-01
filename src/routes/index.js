@@ -1,15 +1,19 @@
 const { Router } = require('express');
 const router = Router();
 
-const {obtenerTodosProductos,obtenerinformacionNutricionalProductoSimple,generarPlanProducto,obtenerListaProductosSimilitudes,registrarUsuario,loginUsuario,middleware,agregarProductoAFavoritos,quitarProductoAFavoritos,obtenerTodasRecetas,agregarPreparacionAFavoritos,quitarPreparacionAFavoritos,obtenerFavoritosUsuario} = require('../controllers/index.controllers.js');
+const {obtenerInfoUsuario,recetasUsuario,buscarRecetas,obtenerTodosProductos,obtenerinformacionNutricionalProductoSimple,generarPlanProducto,obtenerListaProductosSimilitudes,registrarUsuario,loginUsuario,middleware,agregarProductoAFavoritos,quitarProductoAFavoritos,obtenerTodasRecetas,agregarPreparacionAFavoritos,quitarPreparacionAFavoritos,obtenerFavoritosUsuario} = require('../controllers/index.controllers.js');
 
 
 //Gets
-router.get('/producto/listaCompletaProductos',middleware,obtenerTodosProductos);
+// router.get('/producto/listaCompletaProductos',middleware,obtenerTodosProductos);
+// router.get('/receta/listaCompletaRecetas',middleware,obtenerTodasRecetas);
 router.get('/producto/informacionNutricionalProductoSimple/:id',middleware,obtenerinformacionNutricionalProductoSimple);
-router.get('/producto/busquedaSimilitudes/:palabra',middleware,obtenerListaProductosSimilitudes);
-router.get('/receta/listaCompletaRecetas',middleware,obtenerTodasRecetas);
+router.get('/producto/busquedarProducto/:busqueda',middleware,obtenerListaProductosSimilitudes);
+router.get('/recetas/buscarReceta/:busqueda',middleware,buscarRecetas);
+router.get('/recetas/recetasUsuario',middleware,recetasUsuario);
 router.get('/usuario/obtenerFavoritos',middleware,obtenerFavoritosUsuario);
+router.get('/usuario/infoUsuario',middleware,obtenerInfoUsuario);
+
 
 //Posts
 router.post('/producto/generarPlanProducto',middleware,generarPlanProducto);
