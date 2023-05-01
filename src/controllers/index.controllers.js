@@ -56,7 +56,7 @@ const generarPlanProducto = async(req, res) => {
 
 const obtenerListaProductosSimilitudes = async(req,res) =>{
     let {id_usuario} = req.id_usuario;
-    let nombre = req.params.palabra;
+    let nombre = req.params.busqueda;
     let responseQuery = await pool.query('select * from buscar_producto_logeado($1,$2)',[nombre,id_usuario]);
     pool.end;
     return res.status(200).send(responseQuery.rows);
@@ -188,6 +188,50 @@ const obtenerInfoUsuario = async(req,res) => {
     }
 }
 
+const detalleReceta = async(req,res) => {
+    try{
+        let id_preparacion = req.params.id_preparacion;
+        let info_receta = await pool.query(`select p.id_preparacion,p.nombre,n.kcal_prcn, n.prot_prcn,n.gr_totales_prcn,n.hidratos_prcn 
+                                            from preparaciones p 
+                                            join nutricional n on n.id_nutricional = p.nutricional 
+                                            where p.id_preparacion = $1`,[id_preparacion])
+        
+        let pasos = await pool.query(`select pp.*
+                                        from preparaciones p 
+                                        join pasos_preparacion pp on p.id_preparacion = pp.id_preparacion 
+                                        where p.id_preparacion = $1`,[id_preparacion])
+
+        let lista_productos = await pool.query(`select pp.id_preparacion,pp.cantidad, um.nombre nombre_unidad, pro.nombre nombre_producto, 
+                                            case when um.nombre = 'porcion' then n.kcal_prcn * pp.cantidad 
+                                                                            else n.kcal_100/100*pp.cantidad
+                                                                            end kcal,
+                                            case when um.nombre = 'porcion' then n.prot_prcn  * pp.cantidad 
+                                                                            else n.prot_100/100*pp.cantidad
+                                                                            end prot,
+                                            case when um.nombre = 'porcion' then n.gr_totales_prcn  * pp.cantidad 
+                                                                            else n.gr_totales_100/100*pp.cantidad
+                                                                            end gr_totales,
+                                            case when um.nombre = 'porcion' then n.hidratos_prcn * pp.cantidad 
+                                                                            else n.hidratos_100/100*pp.cantidad
+                                                                            end hidratos
+                                            from preparaciones p 
+                                            join productos_preparaciones pp on p.id_preparacion = pp.id_preparacion 
+                                            join productos pro on pro.id_producto = pp.id_producto 
+                                            join unidades_medida um on um.id_unidad_medida = pp.id_unidad_medida 
+                                            join nutricional n on n.id_nutricional = pro.nutricional 
+                                            where p.id_preparacion = $1`,[id_preparacion])
+        let response_ = {
+            lista_productos:lista_productos.rows,
+            info_receta:info_receta.rows,
+            pasos:pasos.rows
+        } 
+        console.log(info_receta.rows)
+        return res.status(200).send(response_)
+    }catch(err){
+
+    }
+}
+
 module.exports = {
     obtenerTodosProductos,
     obtenerinformacionNutricionalProductoSimple,
@@ -204,5 +248,6 @@ module.exports = {
     obtenerFavoritosUsuario,
     buscarRecetas,
     recetasUsuario,
-    obtenerInfoUsuario
+    obtenerInfoUsuario,
+    detalleReceta
 }
