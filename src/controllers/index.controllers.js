@@ -105,15 +105,23 @@ const loginUsuario = async (req,res) => {
 const agregarProductoAFavoritos = async (req,res) =>{
     let {id_usuario} = req.id_usuario;
     let idProducto = req.params.idProducto;
-    let response = await pool.query('INSERT INTO productos_favoritos (id_usuario, id_producto) VALUES($1, $2);', [id_usuario,idProducto]);
-    return res.status(200).send(true);
+    try{
+        let response = await pool.query('INSERT INTO productos_favoritos (id_usuario, id_producto) VALUES($1, $2);', [id_usuario,idProducto]);
+        return res.status(200).send(true);
+    }catch(err){
+        return res.status(200).send(false)
+    }
 }
 
 const quitarProductoAFavoritos = async (req,res) =>{
     let {id_usuario} = req.id_usuario;
     let idProducto = req.params.idProducto;
-    let response = await pool.query('DELETE FROM productos_favoritos WHERE id_usuario = $1 AND id_producto= $2;', [id_usuario,idProducto]);
-    return res.status(200).send(true);
+    try{
+        let response = await pool.query('DELETE FROM productos_favoritos WHERE id_usuario = $1 AND id_producto= $2;', [id_usuario,idProducto]);
+        return res.status(200).send(true);
+    }catch(err){
+        return res.status(200).send(false);
+    }
 }
 
 const obtenerTodasRecetas = async (req,res) =>{
@@ -126,15 +134,24 @@ const obtenerTodasRecetas = async (req,res) =>{
 const agregarPreparacionAFavoritos = async (req,res) =>{
     let {id_usuario} = req.id_usuario;
     let idPreparacion = req.params.idPreparacion;
-    let response = await pool.query('INSERT INTO preparaciones_favoritos(id_usuario, id_preparacion) VALUES($1, $2);', [id_usuario,idPreparacion]);
-    return res.status(200).send(true);
+    try{
+        let response = await pool.query('INSERT INTO preparaciones_favoritos(id_usuario, id_preparacion) VALUES($1, $2);', [id_usuario,idPreparacion]);
+        return res.status(200).send(true);
+    }catch(err){
+        return res.status(200).send(false)
+    }
 }
 
 const quitarPreparacionAFavoritos = async (req,res) =>{
     let {id_usuario} = req.id_usuario;
     let idPreparacion = req.params.idPreparacion;
-    let response = await pool.query('DELETE FROM preparaciones_favoritos WHERE id_usuario = $1 AND id_preparacion = $2;', [id_usuario,idPreparacion]);
-    return res.status(200).send(true);
+    try{
+        let response = await pool.query('DELETE FROM preparaciones_favoritos WHERE id_usuario = $1 AND id_preparacion = $2;', [id_usuario,idPreparacion]);
+        return res.status(200).send(true);
+    }
+    catch(err){
+        return res.status(200).send(false)
+    }
 }
 
 const obtenerFavoritosUsuario = async(req,res) =>{
