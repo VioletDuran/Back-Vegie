@@ -247,7 +247,7 @@ const detalleReceta = async(req,res) => {
                                             join nutricional n on n.id_nutricional = pro.nutricional 
                                             where p.id_preparacion = $1`,[id_preparacion])
         let response_ = {
-            lista_productos:lista_productos.rows[0],
+            lista_productos:lista_productos.rows,
             info_receta:info_receta.rows[0],
             pasos:pasos.rows
         } 
