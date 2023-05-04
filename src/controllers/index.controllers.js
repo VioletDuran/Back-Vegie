@@ -156,8 +156,18 @@ const quitarPreparacionAFavoritos = async (req,res) =>{
 
 const obtenerFavoritosUsuario = async(req,res) =>{
     let {id_usuario} = req.id_usuario;
-    let response = await pool.query('select productos_favoritos.id_producto,productos.nombre,marcas.nombre as marca,productos.cantidad_embase,productos.link_imagen,nutricional.kcal_prcn from productos_favoritos join productos on productos_favoritos.id_producto = productos.id_producto join nutricional on nutricional.id_nutricional = productos.nutricional join marcas on marcas.id_marca = productos.marca where productos_favoritos.id_usuario = $1',[id_usuario]);
-    let response2 = await pool.query('select preparaciones.id_preparacion, preparaciones.nombre, nutricional.kcal_prcn, preparaciones.link_imagen from preparaciones_favoritos join preparaciones on preparaciones.id_preparacion = preparaciones_favoritos.id_preparacion join nutricional on preparaciones.nutricional = nutricional.id_nutricional where preparaciones_favoritos.id_usuario = $1',[id_usuario]);
+    let response = await pool.query(`select pf.id_producto,p.nombre,m.nombre as marca,p.cantidad_embase,p.link_imagen,n.kcal_prcn, 1 as favorito
+                                        from productos_favoritos pf 
+                                        join productos p on pf.id_producto = p.id_producto 
+                                        join nutricional n on n.id_nutricional = p.nutricional 
+                                        join marcas m on m.id_marca = p.marca 
+                                        where pf.id_usuario = $1`,[id_usuario]);
+    
+    let response2 = await pool.query(`select pf.id_preparacion, p.nombre, n.kcal_prcn, p.link_imagen, 1 as favorito
+                                        from preparaciones_favoritos pf
+                                        join preparaciones p on p.id_preparacion = pf.id_preparacion 
+                                        join nutricional n on p.nutricional = n.id_nutricional 
+                                        where pf.id_usuario = $1`,[id_usuario]);
     let respuestas = {
         "productos":response.rows,
         "recetas":response2.rows
@@ -237,8 +247,8 @@ const detalleReceta = async(req,res) => {
                                             join nutricional n on n.id_nutricional = pro.nutricional 
                                             where p.id_preparacion = $1`,[id_preparacion])
         let response_ = {
-            lista_productos:lista_productos.rows,
-            info_receta:info_receta.rows,
+            lista_productos:lista_productos.rows[0],
+            info_receta:info_receta.rows[0],
             pasos:pasos.rows
         } 
         return res.status(200).send(response_)
