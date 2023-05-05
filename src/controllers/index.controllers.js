@@ -46,11 +46,75 @@ const obtenerinformacionNutricionalProductoSimple = async(req, res) => {
 
 //Se recibe un objeto JSON por el metodo POST, el cual recibe: id_usuario, fecha, unidad_medida, id_producto, cantidad, checked.
 const generarPlanProducto = async(req, res) => {
-    let {id_usuario} = req.id_usuario;
-    let {fecha, unidad_medida, id_producto, cantidad, checked} = req.body;
-    let generarPlan = await pool.query('insert into planes_productos(id_usuario,fecha,id_producto,unidad_medida,cantidad,checked) values($1,$2,$3,$4,$5,$6)',[id_usuario,fecha,id_producto,unidad_medida,cantidad,checked]);
-    if(generarPlan){
-        return res.status(200).send(true);
+    try{
+        let {id_usuario} = req.id_usuario;
+        let {fecha, unidad_medida, id_producto, cantidad, checked,momento_dia} = req.body;
+        let generarPlan = await pool.query('insert into planes_productos(id_usuario,fecha,id_producto,unidad_medida,cantidad,checked,momento_dia) values($1,$2,$3,$4,$5,$6,$7)',[id_usuario,fecha,id_producto,unidad_medida,cantidad,checked,momento_dia]);
+        if(generarPlan){
+            return res.status(200).send(true);
+        }
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
+    }
+}
+
+const obtenerUnidadesMedida = async(req,res) => {
+    try{
+        let id_producto = req.body.id_producto
+        let unidades = await pool.query(`select um.* from unidades_medida um 
+                                            join productos_unidades pu on pu.id_unidad = um.id_unidad_medida 
+                                            where pu.id_producto = $1`,[id_producto])
+        return res.status(200).send(unidades.rows)
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
+    }
+ }
+
+const obtenerPlanAlimentacion = async(req,res) => {
+    try{
+        let {id_usuario} = req.id_usuario
+        let fecha = req.body.fecha
+        let plan_producto = await pool.query(`select pp.*,p.nombre, case when pp.unidad_medida = 1 
+                                                                then pp.cantidad*n.kcal_prcn
+                                                                else pp.cantidad*n.kcal_100/100
+                                                            end kcal
+                                    from planes_productos pp 
+                                    join productos p on pp.id_producto = p.id_producto 
+                                    join nutricional n on p.nutricional = n.id_nutricional 
+                                    where pp.fecha=$1 and pp.id_usuario=$2`,[fecha,id_usuario])
+        let plan = {
+            productos: plan_producto.rows
+        }
+        return res.status(200).send(plan)
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
+    }
+}
+
+const marcarCheckedPlanProducto = async(req,res) => {
+    try{
+        let {id_usuario} = req.id_usuario
+        let {id_plan_producto,checked} = req.body
+        await pool.query(`update planes_productos 
+                            set checked = $1 
+                            where id_usuario = $2
+                            and id_plan_producto = $3`,[checked,id_usuario,id_plan_producto])
+       
+        let is_checked = await pool.query(`select checked from planes_productos
+                    where id_usuario=$1 
+                    and id_plan_producto=$2`,[id_usuario,id_plan_producto])
+        
+        return res.status(200).send({checked:is_checked.rows[0].checked})
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
     }
 }
 
@@ -261,6 +325,9 @@ module.exports = {
     obtenerTodosProductos,
     obtenerinformacionNutricionalProductoSimple,
     generarPlanProducto,
+    obtenerPlanAlimentacion,
+    marcarCheckedPlanProducto,
+    obtenerUnidadesMedida,
     obtenerListaProductosSimilitudes,
     registrarUsuario,
     loginUsuario,
