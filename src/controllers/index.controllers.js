@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const { json, response } = require('express');
+const multer = require('multer');
 
 
 function middleware(req,res,next){
@@ -24,6 +25,22 @@ const pool = new Pool({
     database: 'postgres',
     port: '5432'
 })
+
+const storage = multer.diskStorage({
+    filename: async function (res, file, cb) {
+      let query = await pool.query('select MAX(id_preparacion) from preparaciones')
+      let id = query.rows[0];
+      let extension = file.originalname.split(".")[1];
+      const fileName = id.max + "." + extension;
+      cb(null, `${fileName}`);
+    },
+    destination: function (res, file, cb) {
+        cb(null, './public/');
+    },
+});
+
+const upload = multer({ storage });
+
 
 //Se obtienen todos los productos enconjunto a su favoritos del usuario logeado
 const obtenerTodosProductos = async(req, res) => {
@@ -321,6 +338,20 @@ const detalleReceta = async(req,res) => {
     }
 }
 
+const editarInfoUsuario = async(req,res) =>{
+    try {
+        let {id_usuario} = req.id_usuario;
+        let {nombre,fecha_nacimiento,peso,altura,tarjet_calorias,objetivo,es_vegano} = req.body;
+        let query = await pool.query(`UPDATE usuarios
+        SET nombre = $1, fecha_nacimiento = $2, peso = $3, altura = $4, tarjet_calorias = $5, objetivo = $6, es_vegano = $7
+        WHERE id_usuario = $8;`,[nombre,fecha_nacimiento,peso,altura,tarjet_calorias,objetivo,es_vegano,id_usuario]);
+        return res.status(200).send(true);
+    } catch (error) {
+        return res.status(200).send(false);
+    }
+}
+
+
 module.exports = {
     obtenerTodosProductos,
     obtenerinformacionNutricionalProductoSimple,
@@ -341,5 +372,7 @@ module.exports = {
     buscarRecetas,
     recetasUsuario,
     obtenerInfoUsuario,
-    detalleReceta
+    detalleReceta,
+    upload,
+    editarInfoUsuario
 }
