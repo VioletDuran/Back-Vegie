@@ -13,7 +13,7 @@ router.get('/producto/informacionNutricionalProductoSimple/:id',middleware,obten
 // buscar productos
 router.get('/producto/buscarProducto/:busqueda',middleware,obtenerListaProductosSimilitudes);
 // unidades de medida de producto
-router.get('/producto/obtenerUnidadesMedida',middleware,obtenerUnidadesMedida)
+router.get('/producto/obtenerUnidadesMedida/:id_producto',middleware,obtenerUnidadesMedida)
 // buscar receta
 router.get('/recetas/buscarReceta/:busqueda',middleware,buscarRecetas);
 // buscar recetas del usuario
@@ -25,7 +25,7 @@ router.get('/usuario/obtenerFavoritos',middleware,obtenerFavoritosUsuario);
 // info de usuario (email, vegano, etc...)
 router.get('/usuario/infoUsuario',middleware,obtenerInfoUsuario);
 // obtener plan de alimentacion para 1 dia determinado
-router.get('/plan/obtenerPlanAlimentacion',middleware,obtenerPlanAlimentacion)
+router.get('/plan/obtenerPlanAlimentacion/:fecha',middleware,obtenerPlanAlimentacion)
 
 
 //Posts

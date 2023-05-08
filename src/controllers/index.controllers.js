@@ -62,7 +62,7 @@ const generarPlanProducto = async(req, res) => {
 
 const obtenerUnidadesMedida = async(req,res) => {
     try{
-        let id_producto = req.body.id_producto
+        let id_producto = req.params.id_producto
         let unidades = await pool.query(`select um.* from unidades_medida um 
                                             join productos_unidades pu on pu.id_unidad = um.id_unidad_medida 
                                             where pu.id_producto = $1`,[id_producto])
@@ -77,14 +77,15 @@ const obtenerUnidadesMedida = async(req,res) => {
 const obtenerPlanAlimentacion = async(req,res) => {
     try{
         let {id_usuario} = req.id_usuario
-        let fecha = req.body.fecha
-        let plan_producto = await pool.query(`select pp.*,p.nombre, case when pp.unidad_medida = 1 
+        let fecha = req.params.fecha
+        let plan_producto = await pool.query(`select pp.*,um.nombre as nombre_unidad,p.nombre, case when pp.unidad_medida = 1 
                                                                 then pp.cantidad*n.kcal_prcn
                                                                 else pp.cantidad*n.kcal_100/100
                                                             end kcal
                                     from planes_productos pp 
                                     join productos p on pp.id_producto = p.id_producto 
-                                    join nutricional n on p.nutricional = n.id_nutricional 
+                                    join nutricional n on p.nutricional = n.id_nutricional
+                                    join unidades_medida um on um.id_unidad_medida = pp.unidad_medida 
                                     where pp.fecha=$1 and pp.id_usuario=$2`,[fecha,id_usuario])
         let plan = {
             productos: plan_producto.rows
