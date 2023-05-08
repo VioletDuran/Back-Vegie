@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const router = Router();
 
-const {marcarCheckedPlanProducto,obtenerPlanAlimentacion,obtenerUnidadesMedida,detalleReceta,obtenerInfoUsuario,recetasUsuario,buscarRecetas,obtenerTodosProductos,obtenerinformacionNutricionalProductoSimple,generarPlanProducto,obtenerListaProductosSimilitudes,registrarUsuario,loginUsuario,middleware,agregarProductoAFavoritos,quitarProductoAFavoritos,obtenerTodasRecetas,agregarPreparacionAFavoritos,quitarPreparacionAFavoritos,obtenerFavoritosUsuario} = require('../controllers/index.controllers.js');
+const {marcarCheckedPlanProducto,obtenerPlanAlimentacion,obtenerUnidadesMedida,detalleReceta,obtenerInfoUsuario,recetasUsuario,buscarRecetas,obtenerTodosProductos,obtenerinformacionNutricionalProductoSimple,generarPlanProducto,obtenerListaProductosSimilitudes,registrarUsuario,loginUsuario,middleware,agregarProductoAFavoritos,quitarProductoAFavoritos,obtenerTodasRecetas,agregarPreparacionAFavoritos,quitarPreparacionAFavoritos,obtenerFavoritosUsuario,upload,editarInfoUsuario} = require('../controllers/index.controllers.js');
 
 
 //Gets
@@ -19,7 +19,7 @@ router.get('/recetas/buscarReceta/:busqueda',middleware,buscarRecetas);
 // buscar recetas del usuario
 router.get('/recetas/recetasUsuario',middleware,recetasUsuario);
 // detalle de recetas
-router.get('/recetas/detalleReceta/:id_preparacion',middleware,detalleReceta)
+router.get('/recetas/detalleReceta/:id_preparacion',middleware,detalleReceta);
 // favoritos (productos y recetas)
 router.get('/usuario/obtenerFavoritos',middleware,obtenerFavoritosUsuario);
 // info de usuario (email, vegano, etc...)
@@ -29,6 +29,9 @@ router.get('/plan/obtenerPlanAlimentacion/:fecha',middleware,obtenerPlanAlimenta
 
 
 //Posts
+router.post('/recetas/guardarFotos',middleware,upload.single("myFile"),(req, res) => {
+    res.status(200).send(true)
+  });
 router.post('/plan/generarPlanProducto',middleware,generarPlanProducto);
 router.post('/usuario/registrarUsuario',registrarUsuario);
 router.post('/usuario/loginUsuario',loginUsuario);
@@ -40,7 +43,8 @@ router.delete('/usuario/quitarFavoritoProducto/:idProducto',middleware,quitarPro
 router.delete('/usuario/quitarFavoritoPreparacion/:idPreparacion',middleware,quitarPreparacionAFavoritos);
 
 //Put
-router.put('/plan/marcarCheckedPlanProducto',middleware,marcarCheckedPlanProducto)
+router.put('/plan/marcarCheckedPlanProducto',middleware,marcarCheckedPlanProducto);
+router.put('/usuario/editarInformacion',middleware,editarInfoUsuario);
 
 
 module.exports = router;
