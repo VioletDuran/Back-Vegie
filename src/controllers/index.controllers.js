@@ -237,16 +237,25 @@ const obtenerPlanAlimentacion = async(req,res) => {
         let {id_usuario} = req.id_usuario
         let fecha = req.params.fecha
         let plan_producto = await pool.query(`select pp.*,um.nombre as nombre_unidad,p.nombre, case when pp.unidad_medida = 1 
-                                                                then pp.cantidad*n.kcal_prcn
-                                                                else pp.cantidad*n.kcal_100/100
-                                                            end kcal
-                                    from planes_productos pp 
-                                    join productos p on pp.id_producto = p.id_producto 
-                                    join nutricional n on p.nutricional = n.id_nutricional
-                                    join unidades_medida um on um.id_unidad_medida = pp.unidad_medida 
-                                    where pp.fecha=$1 and pp.id_usuario=$2`,[fecha,id_usuario])
+                                                                                                then round(pp.cantidad*n.kcal_prcn)
+                                                                                                else round(pp.cantidad*n.kcal_100/100)
+                                                                                            end kcal
+                                                from planes_productos pp 
+                                                join productos p on pp.id_producto = p.id_producto 
+                                                join nutricional n on p.nutricional = n.id_nutricional
+                                                join unidades_medida um on um.id_unidad_medida = pp.unidad_medida 
+                                                where pp.fecha=$1 and pp.id_usuario=$2`,[fecha,id_usuario])
+
+        let planes_preparaciones = await pool.query(`select pp.*, round(n.kcal_prcn*pp.cantidad) as kcal
+                                                        from planes_preparaciones pp 
+                                                        join preparaciones p on pp.id_preparacion = p.id_preparacion 
+                                                        join nutricional n on n.id_nutricional = p.nutricional 
+                                                        where pp.id_usuario = $1
+                                                        and pp.fecha = $2`,[id_usuario, fecha])    
+    
         let plan = {
-            productos: plan_producto.rows
+            productos: plan_producto.rows,
+            preparaciones: planes_preparaciones.rows
         }
         return res.status(200).send(plan)
     }
