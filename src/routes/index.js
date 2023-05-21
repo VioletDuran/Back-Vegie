@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const router = Router();
 
-const {marcarCheckedPlanProducto,obtenerPlanAlimentacion,obtenerUnidadesMedida,detalleReceta,obtenerInfoUsuario,recetasUsuario,buscarRecetas,obtenerTodosProductos,obtenerinformacionNutricionalProductoSimple,generarPlanProducto,obtenerListaProductosSimilitudes,registrarUsuario,loginUsuario,middleware,agregarProductoAFavoritos,quitarProductoAFavoritos,obtenerTodasRecetas,agregarPreparacionAFavoritos,quitarPreparacionAFavoritos,obtenerFavoritosUsuario,upload,editarInfoUsuario} = require('../controllers/index.controllers.js');
+const {marcarCheckedPlanPreparacion,editarPlanPreparacion,eliminarPlanPreparacion,generarPlanPreparacion,editarPlanProducto,eliminarPlanProducto,marcarCheckedPlanProducto,obtenerPlanAlimentacion,obtenerUnidadesMedida,detalleReceta,obtenerInfoUsuario,recetasUsuario,buscarRecetas,obtenerTodosProductos,obtenerinformacionNutricionalProductoSimple,generarPlanProducto,obtenerListaProductosSimilitudes,registrarUsuario,loginUsuario,middleware,agregarProductoAFavoritos,quitarProductoAFavoritos,obtenerTodasRecetas,agregarPreparacionAFavoritos,quitarPreparacionAFavoritos,obtenerFavoritosUsuario,upload,editarInfoUsuario} = require('../controllers/index.controllers.js');
 
 
 //Gets
@@ -32,6 +32,8 @@ router.get('/plan/obtenerPlanAlimentacion/:fecha',middleware,obtenerPlanAlimenta
 router.post('/recetas/guardarFotos',middleware,upload.single("myFile"),(req, res) => {
     res.status(200).send(true)
   });
+
+router.post('/plan/generarPlanPreparacion',middleware,generarPlanPreparacion);
 router.post('/plan/generarPlanProducto',middleware,generarPlanProducto);
 router.post('/usuario/registrarUsuario',registrarUsuario);
 router.post('/usuario/loginUsuario',loginUsuario);
@@ -41,10 +43,14 @@ router.post('/usuario/agregarFavoritoPreaparacion/:idPreparacion',middleware,agr
 //Delete 
 router.delete('/usuario/quitarFavoritoProducto/:idProducto',middleware,quitarProductoAFavoritos);
 router.delete('/usuario/quitarFavoritoPreparacion/:idPreparacion',middleware,quitarPreparacionAFavoritos);
+router.delete('/plan/eliminarPlanProducto',middleware,eliminarPlanProducto);
+router.delete('/plan/eliminarPlanPreparacion',middleware,eliminarPlanPreparacion);
 
 //Put
+router.put('/plan/editarPlanProducto',middleware,editarPlanProducto);
+router.put('/plan/editarPlanPreparacion',middleware,editarPlanPreparacion);
 router.put('/plan/marcarCheckedPlanProducto',middleware,marcarCheckedPlanProducto);
+router.put('/plan/marcarCheckedPlanPreparacion',middleware,marcarCheckedPlanPreparacion);
 router.put('/usuario/editarInformacion',middleware,editarInfoUsuario);
-
 
 module.exports = router;

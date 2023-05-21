@@ -61,6 +61,10 @@ const obtenerinformacionNutricionalProductoSimple = async(req, res) => {
     return res.send(obtenerProductos.rows);
 }
 
+/* ----------------------------------------- */
+/* ---------- PLANES PRODUCTOS ------------- */
+/* ----------------------------------------- */
+
 //Se recibe un objeto JSON por el metodo POST, el cual recibe: id_usuario, fecha, unidad_medida, id_producto, cantidad, checked.
 const generarPlanProducto = async(req, res) => {
     try{
@@ -76,6 +80,143 @@ const generarPlanProducto = async(req, res) => {
         return res.status(500).send(false)
     }
 }
+
+const editarPlanProducto = async(req, res) => {
+    try{
+        let {id_usuario} = req.id_usuario;
+        let { id_plan_producto, unidad_medida, cantidad, checked,momento_dia } = req.body;
+        let updated = await pool.query(`update planes_productos
+                                        set unidad_medida = $2,
+                                            cantidad = $3,
+                                            checked = $4,
+                                            momento_dia = $5
+                                        where id_plan_producto = $1
+                                        and id_usuario = $6`,[id_plan_producto,unidad_medida,cantidad,checked,momento_dia,id_usuario])
+        
+        updated = updated.rowCount ? true : false
+        return res.status(200).send(updated)
+
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
+    }
+}
+
+const eliminarPlanProducto = async(req,res) => {
+    try{
+        let {id_usuario} = req.id_usuario;
+        let {id_plan_producto} = req.body;
+        let deleted = await pool.query(`delete from planes_productos 
+                            where id_plan_producto = $1
+                            and id_usuario = $2`,[id_plan_producto, id_usuario]);
+        
+        deleted = deleted.rowCount ? true : false;
+        return res.status(200).send(deleted);
+    }
+    catch(err){
+        console.log(err);
+        return res.status(500).send(false);
+    }
+}
+
+const marcarCheckedPlanProducto = async(req,res) => {
+    try{
+        let {id_usuario} = req.id_usuario
+        let {id_plan_producto,checked} = req.body
+        await pool.query(`update planes_productos 
+                            set checked = $1 
+                            where id_usuario = $2
+                            and id_plan_producto = $3`,[checked,id_usuario,id_plan_producto])
+       
+        let is_checked = await pool.query(`select checked from planes_productos
+                    where id_usuario=$1 
+                    and id_plan_producto=$2`,[id_usuario,id_plan_producto])
+        
+        return res.status(200).send({checked:is_checked.rows[0].checked})
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
+    }
+}
+
+/* ----------------------------------------- */
+/* --------- PLANES PREPARACIONES ---------- */
+/* ----------------------------------------- */
+
+const generarPlanPreparacion = async(req,res) => {
+    try{
+        let {id_usuario} = req.id_usuario
+        let { fecha,id_preparacion, checked, momento_dia, cantidad } = req.body
+        let generarPlan = await pool.query(`insert into planes_preparaciones(id_usuario,fecha,id_preparacion,checked,momento_dia,cantidad)
+                                            values ($1,$2,$3,$4,$5,$6)`,[id_usuario,fecha,id_preparacion,checked,momento_dia,cantidad])
+        generarPlan = generarPlan.rowCount ? true : false;
+        return res.status(200).send(generarPlan)
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
+    }
+}
+
+const eliminarPlanPreparacion = async(req,res) => {
+    try{
+        let {id_usuario} = req.id_usuario
+        let {id_plan_preparacion} = req.body
+        let deleted = await pool.query(`delete from planes_preparaciones 
+                                        where id_usuario = $1 and id_plan_preparacion = $2`,[id_usuario, id_plan_preparacion])
+        deleted = deleted.rowCount ? true : false
+        return res.status(200).send(deleted) 
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
+    }
+}
+
+const editarPlanPreparacion = async(req,res) => {
+    try{
+        let {id_usuario} = req.id_usuario
+        let {id_plan_preparacion,checked, momento_dia, cantidad} = req.body
+        let updated = await pool.query(`update planes_preparaciones
+                                        set checked = $1,
+                                            momento_dia = $2,
+                                            cantidad = $3
+                                        where id_usuario = $4 and id_plan_preparacion = $5`,[checked,momento_dia,cantidad,id_usuario,id_plan_preparacion])
+        updated = updated.rowCount ? true : false;
+        return res.status(200).send(updated)
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
+    }
+}
+
+const marcarCheckedPlanPreparacion = async(req,res) => {
+    try{
+        let {id_usuario} = req.id_usuario
+        let {id_plan_preparacion,checked} = req.body
+        await pool.query(`update planes_preparaciones 
+                            set checked = $1 
+                            where id_usuario = $2
+                            and id_plan_preparacion = $3`,[checked,id_usuario,id_plan_preparacion])
+       
+        let is_checked = await pool.query(`select checked from planes_preparaciones
+                                            where id_usuario=$1 
+                                            and id_plan_preparacion=$2`,[id_usuario,id_plan_preparacion])
+        
+        return res.status(200).send({checked:is_checked.rows[0].checked})
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
+    }
+}
+
+/* ----------------------------------------- */
+/* --------- -------------------- ---------- */
+/* ----------------------------------------- */
 
 const obtenerUnidadesMedida = async(req,res) => {
     try{
@@ -108,27 +249,6 @@ const obtenerPlanAlimentacion = async(req,res) => {
             productos: plan_producto.rows
         }
         return res.status(200).send(plan)
-    }
-    catch(err){
-        console.log(err)
-        return res.status(500).send(false)
-    }
-}
-
-const marcarCheckedPlanProducto = async(req,res) => {
-    try{
-        let {id_usuario} = req.id_usuario
-        let {id_plan_producto,checked} = req.body
-        await pool.query(`update planes_productos 
-                            set checked = $1 
-                            where id_usuario = $2
-                            and id_plan_producto = $3`,[checked,id_usuario,id_plan_producto])
-       
-        let is_checked = await pool.query(`select checked from planes_productos
-                    where id_usuario=$1 
-                    and id_plan_producto=$2`,[id_usuario,id_plan_producto])
-        
-        return res.status(200).send({checked:is_checked.rows[0].checked})
     }
     catch(err){
         console.log(err)
@@ -357,8 +477,14 @@ module.exports = {
     obtenerTodosProductos,
     obtenerinformacionNutricionalProductoSimple,
     generarPlanProducto,
-    obtenerPlanAlimentacion,
+    editarPlanProducto,
     marcarCheckedPlanProducto,
+    eliminarPlanProducto,
+    generarPlanPreparacion,
+    editarPlanPreparacion,
+    marcarCheckedPlanPreparacion,
+    eliminarPlanPreparacion,
+    obtenerPlanAlimentacion,
     obtenerUnidadesMedida,
     obtenerListaProductosSimilitudes,
     registrarUsuario,
