@@ -246,7 +246,7 @@ const obtenerPlanAlimentacion = async(req,res) => {
                                                 join unidades_medida um on um.id_unidad_medida = pp.unidad_medida 
                                                 where pp.fecha=$1 and pp.id_usuario=$2`,[fecha,id_usuario])
 
-        let planes_preparaciones = await pool.query(`select pp.*, round(n.kcal_prcn*pp.cantidad) as kcal
+        let planes_preparaciones = await pool.query(`select pp.*, round(n.kcal_prcn*pp.cantidad) as kcal, p.nombre as nombre
                                                         from planes_preparaciones pp 
                                                         join preparaciones p on pp.id_preparacion = p.id_preparacion 
                                                         join nutricional n on n.id_nutricional = p.nutricional 
