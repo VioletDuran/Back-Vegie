@@ -106,10 +106,10 @@ const editarPlanProducto = async(req, res) => {
 const eliminarPlanProducto = async(req,res) => {
     try{
         let {id_usuario} = req.id_usuario;
-        let {id_plan_producto} = req.body;
+        let idPlanProducto = req.params.idPlanProducto;
         let deleted = await pool.query(`delete from planes_productos 
                             where id_plan_producto = $1
-                            and id_usuario = $2`,[id_plan_producto, id_usuario]);
+                            and id_usuario = $2`,[idPlanProducto, id_usuario]);
         
         deleted = deleted.rowCount ? true : false;
         return res.status(200).send(deleted);
@@ -163,9 +163,9 @@ const generarPlanPreparacion = async(req,res) => {
 const eliminarPlanPreparacion = async(req,res) => {
     try{
         let {id_usuario} = req.id_usuario
-        let {id_plan_preparacion} = req.body
+        let idPlanPreparacion = req.params.idPlanPreparacion
         let deleted = await pool.query(`delete from planes_preparaciones 
-                                        where id_usuario = $1 and id_plan_preparacion = $2`,[id_usuario, id_plan_preparacion])
+                                        where id_usuario = $1 and id_plan_preparacion = $2`,[id_usuario, idPlanPreparacion])
         deleted = deleted.rowCount ? true : false
         return res.status(200).send(deleted) 
     }
