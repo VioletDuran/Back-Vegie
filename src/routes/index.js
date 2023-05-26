@@ -44,7 +44,7 @@ router.post('/usuario/agregarFavoritoPreaparacion/:idPreparacion',middleware,agr
 router.delete('/usuario/quitarFavoritoProducto/:idProducto',middleware,quitarProductoAFavoritos);
 router.delete('/usuario/quitarFavoritoPreparacion/:idPreparacion',middleware,quitarPreparacionAFavoritos);
 router.delete('/plan/eliminarPlanProducto/:idPlanProducto',middleware,eliminarPlanProducto);
-router.delete('/plan/eliminarPlanPreparacion:/idPlanPreparacion',middleware,eliminarPlanPreparacion);
+router.delete('/plan/eliminarPlanPreparacion/:idPlanPreparacion',middleware,eliminarPlanPreparacion);
 
 //Put
 router.put('/plan/editarPlanProducto',middleware,editarPlanProducto);
