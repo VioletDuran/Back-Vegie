@@ -415,7 +415,7 @@ const recetasUsuario = async(req,res) => {
 const obtenerInfoUsuario = async(req,res) => {
     try{
         let {id_usuario} = req.id_usuario;
-        let response = await pool.query(`select u.nombre,u.email,u.fecha_nacimiento,u.peso,u.altura,u.sexo,u.objetivo,u.tarjet_calorias,u.es_vegano 
+        let response = await pool.query(`select u.nombre,u.email,u.fecha_nacimiento,u.peso,u.altura,u.sexo,u.objetivo,u.tarjet_calorias,u.es_vegano,u.nivel_actividad 
                                             from usuarios u 
                                             where u.id_usuario = $1`,[id_usuario])
         return res.status(200).send(response.rows)
@@ -471,10 +471,10 @@ const detalleReceta = async(req,res) => {
 const editarInfoUsuario = async(req,res) =>{
     try {
         let {id_usuario} = req.id_usuario;
-        let {nombre,fecha_nacimiento,peso,altura,tarjet_calorias,objetivo,es_vegano} = req.body;
+        let {nombre,fecha_nacimiento,peso,altura,tarjet_calorias,objetivo,es_vegano,nivel_actividad} = req.body;
         let query = await pool.query(`UPDATE usuarios
-        SET nombre = $1, fecha_nacimiento = $2, peso = $3, altura = $4, tarjet_calorias = $5, objetivo = $6, es_vegano = $7
-        WHERE id_usuario = $8;`,[nombre,fecha_nacimiento,peso,altura,tarjet_calorias,objetivo,es_vegano,id_usuario]);
+        SET nombre = $1, fecha_nacimiento = $2, peso = $3, altura = $4, tarjet_calorias = $5, objetivo = $6, es_vegano = $7, nivel_actividad = $9
+        WHERE id_usuario = $8;`,[nombre,fecha_nacimiento,peso,altura,tarjet_calorias,objetivo,es_vegano,id_usuario,nivel_actividad]);
         return res.status(200).send(true);
     } catch (error) {
         return res.status(200).send(false);
