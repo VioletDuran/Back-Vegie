@@ -215,6 +215,53 @@ const marcarCheckedPlanPreparacion = async(req,res) => {
 }
 
 /* ----------------------------------------- */
+/* ------------  PREPARACIONES ------------- */
+/* ----------------------------------------- */
+
+const crearPreparacion = async(req,res) => {
+    let id_preparacion;
+    try{
+        let {id_usuario} = req.id_usuario
+        let {nombre,lista_productos,pasos} = req.body
+        let lista_productos_ok = ''
+
+        // procesar productos
+        for(let i=0 ; i<lista_productos.length ; i++){
+            let new_prod = `('${lista_productos[i].id_producto}',${lista_productos[i].id_unidad_medida},${lista_productos[i].cantidad})`
+            if(i!=0){
+                lista_productos_ok += ','
+            }
+            lista_productos_ok += new_prod
+            
+        }
+        // crear preparacion
+        await pool.query(`call crear_preparacion($1,$2,'sin imagen',array[${lista_productos_ok}]::productos_preparaciones_type[])`,[id_usuario,nombre])
+        id_preparacion = await pool.query(`select max(id_preparacion) from preparaciones`)
+        id_preparacion = id_preparacion.rows[0].max
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
+    }
+    // anadir los pasos a la preparacion
+    try{
+        let {nombre,lista_productos,pasos} = req.body
+        for(let i=0 ; i<pasos.length ; i++){
+            await pool.query(`insert into pasos_preparacion
+                              values($1,$2,$3)`,[id_preparacion,
+                                                pasos[i].n_paso,
+                                                pasos[i].descripcion])
+        }
+        return res.status(200).json({id_preparacion})
+    }
+    catch(err){
+        console.log(err)
+        return res.status(200).json({id_preparacion})
+    }
+}
+
+
+/* ----------------------------------------- */
 /* --------- -------------------- ---------- */
 /* ----------------------------------------- */
 
@@ -510,5 +557,6 @@ module.exports = {
     obtenerInfoUsuario,
     detalleReceta,
     upload,
-    editarInfoUsuario
+    editarInfoUsuario,
+    crearPreparacion
 }
