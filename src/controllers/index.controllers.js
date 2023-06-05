@@ -321,19 +321,25 @@ const obtenerListaProductosSimilitudes = async(req,res) =>{
 }
 
 const registrarUsuario = async(req,res) => {
-    let {email,nombre,password,fecha_nacimiento,peso,altura,sexo,objetivo,tarjet_calorias,es_vegano} = req.body;
-    const bcrypt = require('bcrypt');
-    const saltRounds = 10;
-    let auxContraseña =  bcrypt.hashSync(password, saltRounds, (err, hash) => {
-        if (err) throw (err)
-        contraseña = hash;
-    });
-    let response = await pool.query('select email from usuarios where email = $1',[email]);
-    if(response.rows.length == 0){
-        let responseQuery = await pool.query('INSERT INTO usuarios(nombre, email, password, fecha_nacimiento, peso, altura, sexo, objetivo, tarjet_calorias, es_vegano) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[nombre,email,auxContraseña,fecha_nacimiento,peso,altura,sexo,objetivo,tarjet_calorias,es_vegano]);
-        return res.status(200).send(true);
-    }else{
-        return res.status(401).send(false);
+    try{
+        let {email,nombre,password,fecha_nacimiento,peso,altura,sexo,objetivo,tarjet_calorias,es_vegano,nivel_actividad} = req.body;
+        const bcrypt = require('bcrypt');
+        const saltRounds = 10;
+        let auxContraseña =  bcrypt.hashSync(password, saltRounds, (err, hash) => {
+            if (err) throw (err)
+            contraseña = hash;
+        });
+        let response = await pool.query('select email from usuarios where email = $1',[email]);
+        if(response.rows.length == 0){
+            let responseQuery = await pool.query('INSERT INTO usuarios(nombre, email, password, fecha_nacimiento, peso, altura, sexo, objetivo, tarjet_calorias, es_vegano,nivel_actividad) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',[nombre,email,auxContraseña,fecha_nacimiento,peso,altura,sexo,objetivo,tarjet_calorias,es_vegano,nivel_actividad]);
+            return res.status(200).send(true);
+        }else{
+            return res.status(401).send(false);
+        }
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send(false)
     }
 }
 
