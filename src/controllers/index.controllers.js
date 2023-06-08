@@ -492,17 +492,17 @@ const detalleReceta = async(req,res) => {
                                         where p.id_preparacion = $1`,[id_preparacion])
 
         let lista_productos = await pool.query(`select pp.id_preparacion,pp.cantidad, um.nombre nombre_unidad, pro.nombre nombre_producto, pro.id_producto,
-                                            case when um.nombre = 'porcion' then n.kcal_prcn * pp.cantidad 
-                                                                            else n.kcal_100/100*pp.cantidad
+                                            case when um.nombre = 'porción' then round(n.kcal_prcn * pp.cantidad )
+                                                                            else round(n.kcal_100/100*pp.cantidad)
                                                                             end kcal,
-                                            case when um.nombre = 'porcion' then n.prot_prcn  * pp.cantidad 
-                                                                            else n.prot_100/100*pp.cantidad
+                                            case when um.nombre = 'porción' then round(n.prot_prcn  * pp.cantidad) 
+                                                                            else round(n.prot_100/100*pp.cantidad)
                                                                             end prot,
-                                            case when um.nombre = 'porcion' then n.gr_totales_prcn  * pp.cantidad 
-                                                                            else n.gr_totales_100/100*pp.cantidad
+                                            case when um.nombre = 'porción' then round(n.gr_totales_prcn  * pp.cantidad) 
+                                                                            else round(n.gr_totales_100/100*pp.cantidad)
                                                                             end gr_totales,
-                                            case when um.nombre = 'porcion' then n.hidratos_prcn * pp.cantidad 
-                                                                            else n.hidratos_100/100*pp.cantidad
+                                            case when um.nombre = 'porción' then round(n.hidratos_prcn * pp.cantidad) 
+                                                                            else round(n.hidratos_100/100*pp.cantidad)
                                                                             end hidratos
                                             from preparaciones p 
                                             join productos_preparaciones pp on p.id_preparacion = pp.id_preparacion 
