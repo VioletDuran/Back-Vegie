@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const router = Router();
 
-const {crearPreparacion,marcarCheckedPlanPreparacion,editarPlanPreparacion,eliminarPlanPreparacion,generarPlanPreparacion,editarPlanProducto,eliminarPlanProducto,marcarCheckedPlanProducto,obtenerPlanAlimentacion,obtenerUnidadesMedida,detalleReceta,obtenerInfoUsuario,recetasUsuario,buscarRecetas,obtenerTodosProductos,obtenerinformacionNutricionalProductoSimple,generarPlanProducto,obtenerListaProductosSimilitudes,registrarUsuario,loginUsuario,middleware,agregarProductoAFavoritos,quitarProductoAFavoritos,obtenerTodasRecetas,agregarPreparacionAFavoritos,quitarPreparacionAFavoritos,obtenerFavoritosUsuario,upload,editarInfoUsuario} = require('../controllers/index.controllers.js');
+const {eliminarPreparacion,crearPreparacion,marcarCheckedPlanPreparacion,editarPlanPreparacion,eliminarPlanPreparacion,generarPlanPreparacion,editarPlanProducto,eliminarPlanProducto,marcarCheckedPlanProducto,obtenerPlanAlimentacion,obtenerUnidadesMedida,detalleReceta,obtenerInfoUsuario,recetasUsuario,buscarRecetas,obtenerTodosProductos,obtenerinformacionNutricionalProductoSimple,generarPlanProducto,obtenerListaProductosSimilitudes,registrarUsuario,loginUsuario,middleware,agregarProductoAFavoritos,quitarProductoAFavoritos,obtenerTodasRecetas,agregarPreparacionAFavoritos,quitarPreparacionAFavoritos,obtenerFavoritosUsuario,upload,editarInfoUsuario} = require('../controllers/index.controllers.js');
 
 
 //Gets
@@ -46,6 +46,7 @@ router.delete('/usuario/quitarFavoritoProducto/:idProducto',middleware,quitarPro
 router.delete('/usuario/quitarFavoritoPreparacion/:idPreparacion',middleware,quitarPreparacionAFavoritos);
 router.delete('/plan/eliminarPlanProducto/:idPlanProducto',middleware,eliminarPlanProducto);
 router.delete('/plan/eliminarPlanPreparacion/:idPlanPreparacion',middleware,eliminarPlanPreparacion);
+router.delete('/recetas/eliminarReceta/:id_preparacion',middleware,eliminarPreparacion);
 
 //Put
 router.put('/plan/editarPlanProducto',middleware,editarPlanProducto);

@@ -260,6 +260,22 @@ const crearPreparacion = async(req,res) => {
     }
 }
 
+const eliminarPreparacion = async(req,res)=>{
+    try{
+        let {id_usuario} = req.id_usuario
+        let id_preparacion = req.params.id_preparacion
+        let deleted = await pool.query(`delete from preparaciones
+                                            where id_preparacion = $1 and id_usuario = $2`,[id_preparacion,id_usuario])
+        deleted = deleted.rowCount ? true : false;
+        return res.status(200).send(deleted)
+
+    }
+    catch(err){
+        console.log(err)
+        return res.status(500).send()
+    }
+}
+
 
 /* ----------------------------------------- */
 /* --------- -------------------- ---------- */
@@ -564,5 +580,6 @@ module.exports = {
     detalleReceta,
     upload,
     editarInfoUsuario,
-    crearPreparacion
+    crearPreparacion,
+    eliminarPreparacion
 }
