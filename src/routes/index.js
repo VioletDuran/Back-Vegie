@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const router = Router();
 
-const {eliminarPreparacion,crearPreparacion,marcarCheckedPlanPreparacion,editarPlanPreparacion,eliminarPlanPreparacion,generarPlanPreparacion,editarPlanProducto,eliminarPlanProducto,marcarCheckedPlanProducto,obtenerPlanAlimentacion,obtenerUnidadesMedida,detalleReceta,obtenerInfoUsuario,recetasUsuario,buscarRecetas,obtenerTodosProductos,obtenerinformacionNutricionalProductoSimple,generarPlanProducto,obtenerListaProductosSimilitudes,registrarUsuario,loginUsuario,middleware,agregarProductoAFavoritos,quitarProductoAFavoritos,obtenerTodasRecetas,agregarPreparacionAFavoritos,quitarPreparacionAFavoritos,obtenerFavoritosUsuario,upload,editarInfoUsuario} = require('../controllers/index.controllers.js');
+const {eliminarPreparacion,crearPreparacion,marcarCheckedPlanPreparacion,editarPlanPreparacion,eliminarPlanPreparacion,generarPlanPreparacion,editarPlanProducto,eliminarPlanProducto,marcarCheckedPlanProducto,obtenerPlanAlimentacion,obtenerUnidadesMedida,detalleReceta,obtenerInfoUsuario,recetasUsuario,buscarRecetas,obtenerTodosProductos,obtenerinformacionNutricionalProductoSimple,generarPlanProducto,obtenerListaProductosSimilitudes,registrarUsuario,loginUsuario,middleware,agregarProductoAFavoritos,quitarProductoAFavoritos,obtenerTodasRecetas,agregarPreparacionAFavoritos,quitarPreparacionAFavoritos,obtenerFavoritosUsuario,upload,editarInfoUsuario,existeCorreo,obtenerCincoRecetas,obtenerCincoProductos} = require('../controllers/index.controllers.js');
 
 
 //Gets
@@ -26,6 +26,14 @@ router.get('/usuario/obtenerFavoritos',middleware,obtenerFavoritosUsuario);
 router.get('/usuario/infoUsuario',middleware,obtenerInfoUsuario);
 // obtener plan de alimentacion para 1 dia determinado
 router.get('/plan/obtenerPlanAlimentacion/:fecha',middleware,obtenerPlanAlimentacion)
+
+
+// verificar existencia de un correo
+router.get('/usuario/existeCorreo/:email',existeCorreo)
+// devolver 5 recetas random
+router.get('/recetas/obtenerCincoRecetas',middleware,obtenerCincoRecetas)
+// devolver 5 productos random
+router.get('/producto/obtenerCincoProductos',middleware,obtenerCincoProductos)
 
 
 //Posts

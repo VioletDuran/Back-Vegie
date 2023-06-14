@@ -360,25 +360,29 @@ const registrarUsuario = async(req,res) => {
 }
 
 const loginUsuario = async (req,res) => {
-    const dotenv = require('dotenv').config({ path: 'pass.env' });
-    const {email,password} = req.body;
-    const response = await pool.query('select id_usuario,password from usuarios where email = $1',[email]);
-    const bcrypt = require('bcrypt');
-    const jwt = require('jsonwebtoken');
-    if(response.rowCount > 0 && bcrypt.compareSync(password, response.rows[0].password)){
-        let resultado = response.rows[0];
-        delete resultado.password;
-        let token = jwt.sign({
-            data: resultado
-        }, process.env.secretkey , { expiresIn: 60 * 60 * 24}) // duracion de 1 dia.
-        pool.end;
-        return res.json({
-            token,
-            valor: true
-        })
-    }else{
-        pool.end;
-        res.status(401).send(false);
+    try{
+        const dotenv = require('dotenv').config({ path: 'pass.env' });
+        const {email,password} = req.body;
+        const response = await pool.query('select id_usuario,password from usuarios where email = $1',[email]);
+        const bcrypt = require('bcrypt');
+        const jwt = require('jsonwebtoken');
+        if(response.rowCount > 0 && bcrypt.compareSync(password, response.rows[0].password)){
+            let resultado = response.rows[0];
+            delete resultado.password;
+            let token = jwt.sign({
+                data: resultado
+            }, process.env.secretkey , { expiresIn: 60 * 60 * 24}) // duracion de 1 dia.
+            pool.end;
+            return res.json({
+                token,
+                valor: true
+            })
+        }else{
+            pool.end;
+            res.status(401).send(false);
+        }
+    }catch(error){
+        console.log(error);
     }
 }
  
@@ -550,6 +554,42 @@ const editarInfoUsuario = async(req,res) =>{
     }
 }
 
+const existeCorreo = async(req,res) =>{
+    try{
+        let email = req.params.email;
+        let query = await pool.query("select email from usuarios where email = $1",[email]);
+        if(query.rows.length >= 1){
+            return res.status(200).send(true);
+        }else{
+            return res.status(200).send(false);
+        }
+    }catch(error){
+        console.log("error!");
+    }
+}
+
+const obtenerCincoRecetas = async(req,res) =>{
+    try{
+        let {id_usuario} = req.id_usuario;
+        let obtenerReceta = await pool.query('select p.nombre, n.kcal_prcn, p.link_imagen, es_preparacion_favorita($1,p.id_preparacion) from preparaciones p join nutricional n on p.nutricional = n.id_nutricional order by RANDOM() LIMIT 5;',[id_usuario]);
+        pool.end;
+        return res.send(obtenerReceta.rows);
+    }catch(error){
+        return res.status(200).send(false);
+    }
+}
+
+const obtenerCincoProductos = async(req,res)=>{
+    try{
+        let {id_usuario} = req.id_usuario;
+        let obtenerProductos = await pool.query('select p.id_producto,p.nombre,marcas.nombre as marca,nutricional.kcal_100,es_producto_favorito($1,p.id_producto) from usuarios u join productos_favoritos pf on pf.id_usuario = u.id_usuario right join productos p on p.id_producto = pf.id_producto join nutricional ON p.nutricional = nutricional.id_nutricional join marcas on p.marca = marcas.id_marca order by RANDOM() LIMIT 5',[id_usuario]);
+        pool.end;
+        return res.send(obtenerProductos.rows);
+    }catch(error){
+        return res.status(200).send(false);
+    }
+}
+
 
 module.exports = {
     obtenerTodosProductos,
@@ -581,5 +621,8 @@ module.exports = {
     upload,
     editarInfoUsuario,
     crearPreparacion,
-    eliminarPreparacion
+    eliminarPreparacion,
+    existeCorreo,
+    obtenerCincoRecetas,
+    obtenerCincoProductos
 }
