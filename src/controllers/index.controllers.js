@@ -451,7 +451,8 @@ const obtenerFavoritosUsuario = async(req,res) =>{
                                         from preparaciones_favoritos pf
                                         join preparaciones p on p.id_preparacion = pf.id_preparacion 
                                         join nutricional n on p.nutricional = n.id_nutricional 
-                                        where pf.id_usuario = $1`,[id_usuario]);
+                                        where pf.id_usuario = $1
+                                        and p.borrado = false`,[id_usuario]);
     let respuestas = {
         "productos":response.rows,
         "recetas":response2.rows
@@ -476,7 +477,8 @@ const recetasUsuario = async(req,res) => {
         let {id_usuario} = req.id_usuario;
         let response = await pool.query(`select p.id_preparacion,p.nombre,n.kcal_prcn from preparaciones p
                                             join nutricional n on n.id_nutricional = p.nutricional
-                                            where p.id_usuario = $1`,[id_usuario])
+                                            where p.id_usuario = $1
+                                            and p.borrado = false`,[id_usuario])
         return res.status(200).send(response.rows)
     }
     catch(err){
